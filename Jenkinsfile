@@ -58,6 +58,12 @@ pipeline {
            }
         }
 
+        stage('Build only') {
+            steps {
+                sh "./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true clean install"
+            }
+        }
+
         stage('Build & Deploy') {
             when {
                 branch 'main'
@@ -66,7 +72,7 @@ pipeline {
                 sh "./mvnw $MAVEN_PARAMS -Pdeploy -Dmaven.test.skip.exec=true clean deploy"
             }
         }
-
+/*
         stage('Website update') {
             when {
                 branch 'main'
@@ -97,6 +103,7 @@ pipeline {
             }
         }
 
+*/
     }
 
     post {
