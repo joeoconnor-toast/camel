@@ -108,12 +108,14 @@ pipeline {
 
     post {
         always {
+            archiveArtifacts artifacts: '**/*.jar', fingerprint: true
             emailext(
                 subject: '${DEFAULT_SUBJECT}',
                 body: '${DEFAULT_CONTENT}',
                 recipientProviders: [[$class: 'CulpritsRecipientProvider']]
             )
         }
+
     }
 }
 
