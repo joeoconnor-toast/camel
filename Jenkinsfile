@@ -72,38 +72,6 @@ pipeline {
                 sh "./mvnw $MAVEN_PARAMS -Pdeploy -Dmaven.test.skip.exec=true clean deploy"
             }
         }
-/*
-        stage('Website update') {
-            when {
-                branch 'main'
-                changeset 'docs/**/*'
-            }
-
-            steps {
-                build job: 'Camel/Camel.website/main', wait: false
-            }
-        }
-
-        stage('Checks') {
-            steps {
-                sh "./mvnw $MAVEN_PARAMS -pl :camel-buildtools install"
-                sh "./mvnw $MAVEN_PARAMS -Psourcecheck -Dcheckstyle.failOnViolation=false checkstyle:check"
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh "./mvnw $MAVEN_PARAMS -Dmaven.test.failure.ignore=true clean install"
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                    junit allowEmptyResults: true, testResults: '**/target/failsafe-reports/*.xml'
-                }
-            }
-        }
-
-*/
     }
 
     post {
