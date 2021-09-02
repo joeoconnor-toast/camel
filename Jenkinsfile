@@ -63,7 +63,7 @@ pipeline {
             steps {
                 sh "cd init; ../mvnw -U install"
                 sh "./mvnw -N install"
-                sh "cd tooling; ../mvnw -U -pl !:camel-swagger-rest-dsl-generator,!camel-openapi-rest-dsl-generator  install"
+                sh "cd tooling; ../mvnw -U -pl !:camel-swagger-rest-dsl-generator,!:camel-openapi-rest-dsl-generator  install"
                 sh "cd core; ../mvnw -N install"
                 sh "cd buildingtools; ../mvnw -U install; ../mvnw -U source:jar install"
                 sh "cd parent; ../mvnw -U install"
