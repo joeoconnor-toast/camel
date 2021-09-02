@@ -11,11 +11,6 @@ buildscript {
     }
 }
 
-allprojects {
-    group 'org.apache.camel'
-    version '3.11.1-SNAPSHOT-TOAST'
-}
-
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -24,3 +19,8 @@ plugins {
 apply plugin: 'toast-maven'
 apply plugin: 'toast-artifactory'
 
+
+allprojects {
+    group 'org.apache.camel'
+    version '3.11.1-SNAPSHOT-TOAST'
+}
