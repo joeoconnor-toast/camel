@@ -11,6 +11,11 @@ buildscript {
     }
 }
 
+allprojects {
+    group 'org.apache.camel'
+    version '3.11.1-SNAPSHOT-TOAST'
+}
+
 plugins {
     id 'java-library'
     id 'maven-publish'
