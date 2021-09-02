@@ -63,10 +63,10 @@ pipeline {
             steps {
                 sh "cd init; ../mvnw -U install"
                 sh "./mvnw -N install"
+                sh "cd tooling; ../mvnw -U install"
                 sh "cd core; ../mvnw -N install"
                 sh "cd buildingtools; ../mvnw -U install; ../mvnw -U source:jar install"
                 sh "cd parent; ../mvnw -U install"
-                sh "cd tooling; ../mvnw -U install"
                 sh "cd tooling/parent; ../../mvnw -U install"
                 sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw -U install; ../../../mvnw -U source:jar install"
                 sh "cd core/camel-core; ./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
