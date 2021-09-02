@@ -67,7 +67,7 @@ pipeline {
 
         stage('Build & Deploy') {
             when {
-                branch 'main'
+                branch 'backport-CAMEL-16790-fix-to-3.11'
             }
             steps {
                 sh "./mvnw $MAVEN_PARAMS -Pdeploy -Dmaven.test.skip.exec=true clean deploy"
