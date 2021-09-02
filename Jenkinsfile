@@ -60,7 +60,7 @@ pipeline {
 
         stage('Build only') {
             steps {
-                sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw  install; ../../../mvnw source:jar install; cd ../../..;  ./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
+                sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw  install; ../../../mvnw source:jar install; cd ../../parent; ../../mvnw source:jar install; cd ../..;  ./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
             }
         }
 
