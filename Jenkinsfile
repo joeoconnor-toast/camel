@@ -61,23 +61,7 @@ pipeline {
 
         stage('Build only') {
             steps {
-                sh "cd init; ../mvnw -U install"
-                sh "./mvnw -N install"
-                sh "cd tooling; ../mvnw -U -pl !:camel-swagger-rest-dsl-generator,!:camel-openapi-rest-dsl-generator  install"
-                sh "cd core; ../mvnw -N install"
-                sh "cd buildingtools; ../mvnw -U install; ../mvnw -U source:jar install"
-                sh "cd parent; ../mvnw -U install"
-                sh "cd tooling/parent; ../../mvnw -U install"
-                sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw -U install; ../../../mvnw -U source:jar install"
-                sh "cd core/camel-core; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd core/camel-main; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd core/camel-management; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-metrics; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-protobuf; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-pulsar; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-spring; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-test; ../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
-                sh "cd components/camel-test/camel-testcontainers; ../../../mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
+                sh "./mvnw clean install -Pfastinstall,sourcecheck -pl :camel-core,:camel-main,:camel-management,:camel-metrics,:camel-protobuf,:camel-pulsar,:camel-spring,:camel-test,:camel-testcontainers  -am"
             }
         }
 
