@@ -19,6 +19,7 @@
 
 def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'adoptopenjdk_hotspot_8u282'
+def SUBPROJECTS = env.SUBPROJECTS ?: ':camel-core,:camel-main,:camel-management,:camel-metrics,:camel-protobuf,:camel-pulsar,:camel-spring,:camel-test,:camel-testcontainers'
 
 def MAVEN_PARAMS = "-U -B -e -fae -V -Dnoassembly -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
 
@@ -66,7 +67,7 @@ pipeline {
                 sh "cd parent; ../mvnw -U install"
                 sh "cd tooling/parent; ../../mvnw -U install"
                 sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw -U install; ../../../mvnw -U source:jar install"
-                sh "./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
+                sh "./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true --projects $SUBPROJECTS install"
             }
         }
 
