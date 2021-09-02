@@ -63,7 +63,7 @@ pipeline {
             steps {
                 sh "cd init; ../mvnw -U install"
                 sh "./mvnw -N install"
-                sh "cd core; ./mvnw -N install"
+                sh "cd core; ../mvnw -N install"
                 sh "cd buildingtools; ../mvnw -U install; ../mvnw -U source:jar install"
                 sh "cd parent; ../mvnw -U install"
                 sh "cd tooling; ../mvnw -U install"
