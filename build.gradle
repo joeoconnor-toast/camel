@@ -1,0 +1,21 @@
+buildscript {
+    configurations.classpath.resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    repositories {
+        mavenLocal()
+        maven { url 'https://artifactory.eng.toasttab.com/artifactory/libs-release' }
+        maven { url 'https://artifactory.eng.toasttab.com/artifactory/libs-snapshot' }
+        maven { url 'https://artifactory.eng.toasttab.com/artifactory/remote-repos' }
+    }
+    dependencies {
+        classpath('com.toasttab.gradle:toast-gradle:3.4.0')
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+apply plugin: 'toast-maven'
+apply plugin: 'toast-artifactory'
+

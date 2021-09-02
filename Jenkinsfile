@@ -1,90 +1,99 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+#!/usr/bin/env groovy
 
-def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
-def JDK_NAME = env.JDK_NAME ?: 'adoptopenjdk_hotspot_8u282'
-def SUBPROJECTS = env.SUBPROJECTS ?: ':camel-core,:camel-main,:camel-management,:camel-metrics,:camel-protobuf,:camel-pulsar,:camel-spring,:camel-test,:camel-testcontainers'
+@Library('toast@master')
 
-def MAVEN_PARAMS = "-U -B -e -fae -V -Dnoassembly -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
+import toastBuild
 
-pipeline {
+def discardStrategy
+if (env.JOB_BASE_NAME.contains('PR')) {
+  discardStrategy = logRotator(
+          artifactDaysToKeepStr: '5',
+          artifactNumToKeepStr: '',
+          daysToKeepStr: '1',
+          numToKeepStr: ''
+  )
+} else {
+  discardStrategy = logRotator(
+          artifactDaysToKeepStr: '25',
+          artifactNumToKeepStr: '',
+          daysToKeepStr: '100',
+          numToKeepStr: ''
+  )
+}
 
-    agent {
-        label AGENT_LABEL
-    }
+properties([
+        buildDiscarder(discardStrategy),
+        pipelineTriggers([
+                githubPush()
+        ]),
+        [
+                $class   : 'ScannerJobProperty',
+                doNotScan: false
+        ],
+])
 
-    tools {
-        jdk JDK_NAME
-    }
-
-    environment {
-        MAVEN_SKIP_RC = true
-    }
-
-    options {
-        buildDiscarder(
-            logRotator(artifactNumToKeepStr: '5', numToKeepStr: '10')
-        )
-        disableConcurrentBuilds()
-    }
-
-    parameters {
-        booleanParam(name: 'CLEAN', defaultValue: true, description: 'Perform the build in clean workspace')
-    }
-
-    stages {
-
-        stage('Clean workspace') {
-             when {
-                 expression { params.CLEAN }
-             }
-             steps {
-                 sh 'git clean -fdx'
-           }
-        }
-
-        stage('Build only') {
-            steps {
-                sh "./mvnw clean install -Pfastinstall,sourcecheck -pl :camel-core,:camel-main,:camel-management,:camel-metrics,:camel-protobuf,:camel-pulsar,:camel-spring,:camel-test,:camel-testcontainers  -am"
-            }
-        }
-
-        stage('Build & Deploy') {
-            when {
-                branch 'backport-CAMEL-16790-fix-to-3.11'
-            }
-            steps {
-                sh "./mvnw $MAVEN_PARAMS -Pdeploy -Dmaven.test.skip.exec=true clean deploy"
-            }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: '**/*.jar', fingerprint: true
-            emailext(
-                subject: '${DEFAULT_SUBJECT}',
-                body: '${DEFAULT_CONTENT}',
-                recipientProviders: [[$class: 'CulpritsRecipientProvider']]
+def build() {
+    configFileProvider([
+            configFile(
+                    fileId: '74d7cabe-50ef-403d-9ee2-d284c734559d',
+                    variable: 'GRADLE_PROPERTIES'
             )
-        }
-
+    ]) {
+      sh(
+              encoding: 'UTF-8',
+              returnStatus: false,
+              returnStdout: false,
+              script: './mvnw clean install -Pfastinstall,sourcecheck -pl :camel-core,:camel-main,:camel-management,:camel-metrics,:camel-protobuf,:camel-pulsar,:camel-spring,:camel-test,:camel-testcontainers  -am'
+      )
     }
+}
+
+def deploy() {
+  if (env.JOB_BASE_NAME.contains('PR')) {
+    println 'Deployments disabled for pull request builds.'
+  } else {
+    configFileProvider([
+            configFile(
+                    fileId: '74d7cabe-50ef-403d-9ee2-d284c734559d',
+                    variable: 'GRADLE_PROPERTIES'
+            )
+    ]) {
+      sh(
+              encoding: 'UTF-8',
+              returnStatus: false,
+              returnStdout: false,
+              script: 'cp $GRADLE_PROPERTIES gradle.properties; ./gradlew artifactoryPublish --stacktrace --no-daemon'
+      )
+    }
+  }
+}
+
+def g2Build = new g2.Build()
+
+toastBuild {
+  try {
+    stage('pre-build') {
+      checkout scm
+      env.JAVA_HOME = tool(
+              name: 'corretto8',
+              type: 'jdk'
+      )
+    }
+
+    stage('build') {
+      build()
+    }
+
+    stage('deploy') {
+      deploy()
+    }
+  } catch (e) {
+    currentBuild.result = 'FAILURE'
+    println e
+  } finally {
+    stage('post-build') {
+      dir(env.WORKSPACE) { deleteDir() }
+    }
+  }
 }
 
