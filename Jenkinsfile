@@ -60,8 +60,10 @@ pipeline {
 
         stage('Build only') {
             steps {
+                sh "cd init; ../mvnw -U install"
+                sh "./mvnw -N install"
                 sh "cd buildingtools; ../mvnw -U install; ../mvnw -U source:jar install"
-                sh "cd tooling/parent; ../../mvnw -U install"
+                sh "cd tooling; ../mvnw -U install"
                 sh "cd tooling/maven/camel-package-maven-plugin; ../../../mvnw -U install; ../../../mvnw -U source:jar install"
                 sh "./mvnw $MAVEN_PARAMS -Dmaven.test.skip.exec=true install"
             }
