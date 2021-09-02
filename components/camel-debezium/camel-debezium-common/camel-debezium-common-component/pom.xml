@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-debezium-common-parent</artifactId>
-        <version>3.11.1-CAMEL-16790</version>
+        <version>3.11.1-SNAPSHOT-TOAST</version>
     </parent>
 
     <artifactId>camel-debezium-common</artifactId>
